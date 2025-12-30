@@ -1,6 +1,6 @@
 'use server';
 
-import { ID } from "node-appwrite";
+import { ID, Query } from "node-appwrite";
 import { createAdminClient, createSessionClient } from "../appwrite";
 import { cookies } from "next/headers";
 import { encryptId, extractCustomerIdFromUrl, parseStringify } from "../utils";
@@ -8,14 +8,28 @@ import { CountryCode, ProcessorTokenCreateRequest, ProcessorTokenCreateRequestPr
 import { plaidClient } from "@/lib/plaid";
 import { revalidatePath } from "next/cache";
 import { addFundingSource, createDwollaCustomer } from "./dwolla.actions";
-import { da } from "zod/v4/locales";
-import { parse } from "path";
 
 const {
     APPWRITE_DATABASE_ID: DATABASE_ID,
     APPWRITE_USER_COLLECTION_ID: USER_COLLECTION_ID,
     APPWRITE_BANK_COLLECTION_ID: BANK_COLLECTION_ID,
 } = process.env;
+
+export const getUserInfo = async({ userId }: getUserInfoProps) =>{
+    try {
+        const { database } = await createAdminClient();
+
+        const user = await database.listDocuments({
+            databaseId: DATABASE_ID!,
+            collectionId: USER_COLLECTION_ID!,
+            queries: [Query.equal('userId', [userId])]
+        });
+
+        return parseStringify(user.documents[0]);
+    } catch (error) {
+        console.log('Error in getBank:', error);
+    }
+}
 
 export const signIn = async({ email, password }: signInProps) => {
     try {
@@ -37,18 +51,11 @@ export const signIn = async({ email, password }: signInProps) => {
             secure: true,
         });
         
+        const user = await getUserInfo({ userId: session.userId })
         console.log('Cookie set successfully');
-        return parseStringify(session);
-    } catch (error: any) {
-        console.log('Sign-in error details:', error);
-        console.log('Error code:', error.code);
-        console.log('Error type:', error.type);
-        
-        if (error.code === 401) {
-            throw new Error('Invalid email or password. Please check your credentials.');
-        }
-        
-        throw new Error('Sign-in failed. Please try again.');
+        return parseStringify(user);
+    } catch (error) {
+        console.log('Error:', error);
     }
 }
 
@@ -111,7 +118,10 @@ export const signUp = async({ password, ...userData }: SignUpParams) => {
 export async function getLoggedInUser() {
   try {
     const { account } = await createSessionClient();
-    const user = await account.get();
+    const result = await account.get();
+
+    const user = await getUserInfo({ userId: result.$id })
+
     return parseStringify(user);
   } catch (error) {
     return null;
@@ -122,13 +132,12 @@ export const logoutAccount = async() => {
     try {
         const { account } = await createSessionClient();
         
-        // Delete the session on Appwrite
-        await account.deleteSession('current');
-        
-        // Delete the cookie
         const cookieStore = await cookies();
         cookieStore.delete("appwrite-session");
-        
+
+        await account.deleteSession({
+            sessionId: 'current'});
+            
         return { success: true };
     } catch (error) {
         console.log('Logout error:', error);
@@ -143,7 +152,7 @@ export const createLinkToken = async(user: User) => {
                 client_user_id: user.$id
             },
             client_name: `${user.firstName} ${user.lastName}`,
-            products: ['auth'] as Products[],
+            products: ['auth', 'transactions'] as Products[],
             language: 'en',
             country_codes: ['US'] as CountryCode[],
         }
@@ -162,23 +171,23 @@ export const createBankAccount = async({
     accountId,
     accessToken,
     fundingSourceUrl,
-    sharableId,
+    shareableId,
 }: createBankAccountProps) => {
     try {
         const { database } = await createAdminClient();
-        const bankAccount = await database.createDocument(
-            DATABASE_ID!,
-            BANK_COLLECTION_ID!,
-            ID.unique(),
-            {
+        const bankAccount = await database.createDocument({
+            databaseId: DATABASE_ID!,
+            collectionId: BANK_COLLECTION_ID!,
+            documentId: ID.unique(),
+            data: {
                 userId,
                 bankId,
                 accountId,
                 accessToken,
                 fundingSourceUrl,
-                sharableId,
+                shareableId,
             }
-        )
+        })
         return parseStringify(bankAccount);
     } catch (error) {
         
@@ -232,7 +241,7 @@ export const exchangePublicToken = async ({
             accountId: accountData.account_id,
             accessToken,
             fundingSourceUrl,
-            sharableId: encryptId(accountData.account_id),
+            shareableId: encryptId(accountData.account_id),
         });
 
         // Revaildate the path to reflect the changes
@@ -246,5 +255,44 @@ export const exchangePublicToken = async ({
     } catch (error) {
         console.error("An error occured while creating exchanging token:", error);
         
+    }
+}
+
+export const getBanks = async ({ userId }: getBanksProps) => {
+    try {
+        const { database } = await createAdminClient();
+
+        const banks = await database.listDocuments({
+            databaseId: DATABASE_ID!,
+            collectionId: BANK_COLLECTION_ID!,
+            queries: [Query.equal('userId', [userId])]
+        })
+
+        return parseStringify(banks.documents);
+    } catch (error) {
+        console.log(error);
+        
+    }
+}
+
+export const getBank = async ({ documentId }: getBankProps) => {
+    try {
+        // Validate documentId before making the query
+        if (!documentId || typeof documentId !== 'string') {
+            console.log('Invalid documentId provided to getBank:', documentId);
+            return null;
+        }
+
+        const { database } = await createAdminClient();
+
+        const bank = await database.listDocuments({
+            databaseId: DATABASE_ID!,
+            collectionId: BANK_COLLECTION_ID!,
+            queries: [Query.equal('$id', [documentId])]
+        })
+
+        return parseStringify(bank.documents[0]);
+    } catch (error) {
+        console.log('Error in getBank:', error);
     }
 }
