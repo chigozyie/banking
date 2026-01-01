@@ -63,6 +63,19 @@ export const topCategoryStyles = {
     },
     icon: "/icons/monitor.svg",
   },
+  "FOOD_AND_DRINK": {
+    bg: "bg-blue-25",
+    circleBg: "bg-blue-100",
+    text: {
+      main: "text-blue-900",
+      count: "text-blue-700",
+    },
+    progress: {
+      bg: "bg-blue-100",
+      indicator: "bg-blue-700",
+    },
+    icon: "/icons/monitor.svg",
+  },
   Travel: {
     bg: "bg-success-25",
     circleBg: "bg-success-100",
@@ -73,6 +86,97 @@ export const topCategoryStyles = {
     progress: {
       bg: "bg-success-100",
       indicator: "bg-success-700",
+    },
+    icon: "/icons/coins.svg",
+  },
+  "TRAVEL": {
+    bg: "bg-success-25",
+    circleBg: "bg-success-100",
+    text: {
+      main: "text-success-900",
+      count: "text-success-700",
+    },
+    progress: {
+      bg: "bg-success-100",
+      indicator: "bg-success-700",
+    },
+    icon: "/icons/coins.svg",
+  },
+  "TRANSPORTATION": {
+    bg: "bg-purple-25",
+    circleBg: "bg-purple-100",
+    text: {
+      main: "text-purple-900",
+      count: "text-purple-700",
+    },
+    progress: {
+      bg: "bg-purple-100",
+      indicator: "bg-purple-700",
+    },
+    icon: "/icons/shopping-bag.svg",
+  },
+  "ENTERTAINMENT": {
+    bg: "bg-orange-25",
+    circleBg: "bg-orange-100",
+    text: {
+      main: "text-orange-900",
+      count: "text-orange-700",
+    },
+    progress: {
+      bg: "bg-orange-100",
+      indicator: "bg-orange-700",
+    },
+    icon: "/icons/monitor.svg",
+  },
+  "INCOME": {
+    bg: "bg-green-25",
+    circleBg: "bg-green-100",
+    text: {
+      main: "text-green-900",
+      count: "text-green-700",
+    },
+    progress: {
+      bg: "bg-green-100",
+      indicator: "bg-green-700",
+    },
+    icon: "/icons/coins.svg",
+  },
+  "LOAN_PAYMENTS": {
+    bg: "bg-red-25",
+    circleBg: "bg-red-100",
+    text: {
+      main: "text-red-900",
+      count: "text-red-700",
+    },
+    progress: {
+      bg: "bg-red-100",
+      indicator: "bg-red-700",
+    },
+    icon: "/icons/shopping-bag.svg",
+  },
+  "Transfer": {
+    bg: "bg-yellow-25",
+    circleBg: "bg-yellow-100",
+    text: {
+      main: "text-yellow-900",
+      count: "text-yellow-700",
+    },
+    progress: {
+      bg: "bg-yellow-100",
+      indicator: "bg-yellow-700",
+    },
+    icon: "/icons/monitor.svg",
+  },
+  "TRANSFER_OUT": {
+    bg: "bg-gray-25",
+    circleBg: "bg-gray-100",
+    text: {
+      main: "text-gray-900",
+      count: "text-gray-700",
+    },
+    progress: {
+      bg: "bg-gray-100",
+      indicator: "bg-gray-700",
     },
     icon: "/icons/coins.svg",
   },
@@ -124,6 +228,12 @@ export const transactionCategoryStyles = {
   },
   Success: {
     borderColor: "border-[#12B76A]",
+    backgroundColor: "bg-[#12B76A]",
+    textColor: "text-[#027A48]",
+    chipBackgroundColor: "bg-[#ECFDF3]",
+  },
+  Travel: {
+    borderColor: "border-[#0047AB]",
     backgroundColor: "bg-[#12B76A]",
     textColor: "text-[#027A48]",
     chipBackgroundColor: "bg-[#ECFDF3]",
