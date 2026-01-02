@@ -1,3 +1,5 @@
+import { SpeedInsights } from "@vercel/speed-insights/next"
+
 export const dynamic = 'force-dynamic'
 
 import type { Metadata } from "next";
@@ -34,6 +36,7 @@ export default function RootLayout({
         className={`${inter.variable} ${ibmPlexSerif.variable}`}
       >
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
